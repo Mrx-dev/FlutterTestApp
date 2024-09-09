@@ -44,12 +44,24 @@ jobs:
           archive -archivePath build/ios/archive/Runner.xcarchive \
           CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
+    - name: Create ExportOptions.plist
+      run: |
+        cat <<EOF > ios/Flutter/ExportOptions.plist
+        {
+          "compileBitcode": false,
+          "signingStyle": "manual",
+          "stripSwiftSymbols": false,
+          "teamID": "",
+          "thinning": "<none>"
+        }
+        EOF
+
     - name: Create IPA without signing
       run: |
         xcodebuild -exportArchive \
           -archivePath build/ios/archive/Runner.xcarchive \
           -exportPath build/ios/ipa \
-          -exportOptionsPlist <(echo '{ "compileBitcode": false, "signingStyle": "manual", "stripSwiftSymbols": false }') \
+          -exportOptionsPlist ios/Flutter/ExportOptions.plist \
           CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
     - name: Upload IPA as Artifact
