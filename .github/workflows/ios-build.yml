@@ -1,16 +1,18 @@
-name: Build iOS IPA
+name: Build iOS IPA without signing
 
 on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
   build-ios:
+    name: Build iOS IPA
     runs-on: macos-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout Repository
       uses: actions/checkout@v2
 
     - name: Set up Flutter
@@ -18,17 +20,21 @@ jobs:
       with:
         flutter-version: '3.10.6'
 
-    - name: Install dependencies
+    - name: Install Dependencies
       run: flutter pub get
 
-    - name: Clean the project
-      run: flutter clean
+    - name: Install CocoaPods Dependencies
+      working-directory: ios
+      run: pod install
 
-    - name: Build iOS without signing
+    - name: Build iOS without Code Signing
       run: flutter build ios --no-codesign
 
-    - name: Archive build artifacts
+    - name: List build directory (Debugging Step)
+      run: ls -R build/ios
+
+    - name: Archive iOS build artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: ios-build
+        name: ios-ipa
         path: build/ios/iphoneos/*.ipa
