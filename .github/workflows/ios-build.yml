@@ -1,15 +1,13 @@
-name: Build iOS without Signing
+name: iOS Build without Signing
 
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
 
 jobs:
-  build_ios:
+  build:
     runs-on: macos-latest
 
     steps:
@@ -19,34 +17,23 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.5'  # You can specify the Flutter version
+          flutter-version: '3.13.6'  # Ensure this version includes Dart 3.5.2
 
-      - name: Install Flutter dependencies
+      - name: Set up Flutter
         run: flutter pub get
-
-      - name: Set up Ruby for CocoaPods
-        uses: actions/setup-ruby@v1
-        with:
-          ruby-version: '3.x'  # Or any Ruby version that works with your environment
 
       - name: Install CocoaPods dependencies
         run: |
           cd ios
           pod install
+        working-directory: ./ios
 
-      - name: Build iOS App without Code Signing
-        run: flutter build ios --release --no-codesign
-
-      - name: Archive IPA
+      - name: Build iOS without signing
         run: |
-          cd build/ios/iphoneos
-          mkdir -p Payload
-          cp -r Runner.app Payload/
-          zip -r Runner.ipa Payload
-        shell: bash
+          flutter build ios --no-codesign
 
-      - name: Upload IPA as artifact
+      - name: Archive build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: Runner.ipa
-          path: build/ios/iphoneos/Runner.ipa
+          name: ios-build
+          path: build/ios/ipa
