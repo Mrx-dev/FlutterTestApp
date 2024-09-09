@@ -31,7 +31,7 @@ jobs:
       run: flutter pub get
 
     - name: Build iOS without code signing
-      run: flutter build ios --no-codesign
+      run: flutter build ios --no-codesign --release
 
     - name: Archive the iOS build
       run: |
